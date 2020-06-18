@@ -1,0 +1,52 @@
+/* Tema3 SO - Petre Alexandra 335CB */
+
+
+--- ORGANIZARE --- 
+
+		Pe lângă funcțiile deja implementate, am adăugat funcția handler(int,
+	siginfo_t *, void *), unde am implementat rezolvarea SegFaults.
+
+	* 	Cazurile de baza:  când segFault era dintr-un segment care era în afara
+	adreselor date de segmente. (default handler)
+	*	Pentru pageFault am luat 2 cazuri în funcție de fileSize și memSize
+	specifice fiecărui segement:
+		-- dacă memSize == fileSize 
+			- fac mmap din fișier la adresa virtuală calculată pentru pagina
+			respectivă (2 cazuri: fileSize < pageSize - mapez cât este nevoie
+								fileSize >= pageSize  = mapez o pagină)
+		-- dacă memSize > fileSize
+			- verific dacă pe pagina curentă întră date din fișier, dacă da
+			mmap din fișier (în funcție de cât trebuie mapat), dacă dimensiunea
+			a ce trebuie să mapez e mai mică decat pageSize (4096), atunci mapez
+			cât este nevoie, și umplu restul paginii cu 0
+			- dacă pe pagina curentă nu trebuie să pun date apelez mmap cu flagul
+			MAP_ANON.
+
+
+	* Consider tema utilă am învățat și înțeles cu trebuie folosit un signal
+	handler cât și funcțiile de mapare.
+
+--- IMPLEMENTARE ---
+
+	* Intregul enunț este implementat.
+	* A fost destul de greu să pot să fac debugging.
+	* Am deschis fișierul în so_execute și am alocat memorie pentru vectorul
+	data din cadrul structurii fiecărui segment
+	* Am folosit void *data - ca vector de pagini, în care marcam fiecare pagină
+	mapata, pentru cazurile în care se încerca maparea de mai multe ori a
+	aceleași pagini.
+
+--- Cum se compilează și cum se rulează ---
+
+	* Compilarea am făcut-o cu Makefile-ul din schelet.
+	* rulez testele cu ./run_tests.sh noTest sau cu ./run_all.sh
+
+--- BIBLIOGRAFIE ---
+
+	Laboratoratoarele 5,6 
+	Pentru handler ca să înțeleg mai bine ce se întâmplă:
+	- https://cboard.cprogramming.com/linux-programming/117417-sigaction-how-find-invoke-previous-signal-handler-sa_handler.html
+	- http://man7.org/linux/man-pages/man2/sigaction.2.html
+	- https://www.tutorialspoint.com/c_standard_library/c_function_memset.htm
+
+
